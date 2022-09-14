@@ -7,6 +7,12 @@ dotenv.config();
 const app:Express = express();
 const port = process.env.PORT;
 
+const cors = require('cors');
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
+
+
 app.get('/',(req: Request,res: Response)=> {
     res.send('Distributed Computing Api Server.');
 });
