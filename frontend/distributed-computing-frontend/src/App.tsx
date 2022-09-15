@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import './App.css';
+import ComputeNodeStatus from './ComputeNodeStatus';
 
 export interface RandomFiles {
   filePaths: string[],
@@ -26,6 +27,13 @@ export interface ComputeNode {
   url: string,
 }
 
+export interface ComputeNodeStatus {
+  currentTask : string,
+  isBusy: boolean;
+  lastTaksMessageID : string;
+
+}
+
 function App() {
   const [numOfRandomFiles, setNumOfRandomFiles] = useState<number>(0);
   const [numOfNodes, setNumberOfNodes] = useState<number>(0);
@@ -34,6 +42,7 @@ function App() {
   useEffect(()=>{
     fetch("http://localhost:8000/getServerInfo",{method:"POST"}).then(data=>data.json()).then(setComputeNodes);
   },[])
+  
   console.log(computeNodes)
   const generate = useCallback(() => {
     fetch("http://localhost:8000/generateRandomFile?numberOfFiles=" + numOfRandomFiles.toString()).then(
@@ -70,17 +79,13 @@ function App() {
         <div style={{display:"grid",columnGap: 1, gridTemplateColumns: "auto auto auto auto auto", backgroundColor:"lightgray"}}>
               <div>name</div>
               <div>url</div>
+              <div>current Task</div>
               <div>status</div>
-              <div>isActive</div>
-              <div>LastTask</div>
+              <div>lastTaskMessageID</div>
             </div>
         { computeNodes && computeNodes.map((ele, index) => (
           <div key={index} style={{display:"grid",columnGap: 1, gridTemplateColumns: "auto auto auto auto auto", backgroundColor:"lightblue"}}>
-            <div>{ele.name}</div>
-            <div>{ele.url}</div>
-            <div>{}</div>
-            <div>{}</div>
-            <div>{}</div>
+           <ComputeNodeStatus computeNode={ ele}/>
           </div>
         ))}
       </div>
