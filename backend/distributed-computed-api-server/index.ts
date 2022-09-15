@@ -11,6 +11,7 @@ const cors = require('cors');
 app.use(cors({
     origin: 'http://localhost:3000'
 }));
+app.use(express.json());
 
 
 app.get('/',(req: Request,res: Response)=> {
@@ -38,7 +39,8 @@ app.get('/generateRandomFile',(req: Request,res: Response)=> {
 });
 
 app.post('/getFile',(req: Request,res:Response) => {
-    res.sendFile(req.params.filePath);
+    // Since ts is compile inside the dist folder we go to the parent directory
+    res.sendFile(req.body.filePath as string,{root:__dirname+"/.."});
 })
 
 app.get('/getAllServerStatus',(req:Request, res:Response)=>{ 
