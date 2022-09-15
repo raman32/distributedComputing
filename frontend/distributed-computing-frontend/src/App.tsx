@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './App.css';
 
 export interface RandomFiles {
@@ -23,10 +23,7 @@ export interface Task {
 
 export interface ComputeNode {
   name: string,
-  id: string,
-  isActive: boolean,
-  isAvailable: boolean,
-  lastTasks: Task,
+  url: string,
 }
 
 function App() {
@@ -34,6 +31,10 @@ function App() {
   const [numOfNodes, setNumberOfNodes] = useState<number>(0);
   const [computeNodes,setComputeNodes] = useState<ComputeNode[]>([])
   const [randomFiles, setRandomFiles] = useState<RandomFiles | null>(null);
+  useEffect(()=>{
+    fetch("http://localhost:8000/getServerInfo",{method:"POST"}).then(data=>data.json()).then(setComputeNodes);
+  },[])
+  console.log(computeNodes)
   const generate = useCallback(() => {
     fetch("http://localhost:8000/generateRandomFile?numberOfFiles=" + numOfRandomFiles.toString()).then(
       (res) => res.json()
@@ -68,21 +69,20 @@ function App() {
       <div>
         <div style={{display:"grid",columnGap: 1, gridTemplateColumns: "auto auto auto auto auto", backgroundColor:"lightgray"}}>
               <div>name</div>
-              <div>id</div>
-              <div>isAvailable</div>
+              <div>url</div>
+              <div>status</div>
               <div>isActive</div>
-              <div>lastTasks.name</div>
-            
+              <div>LastTask</div>
+            </div>
         { computeNodes && computeNodes.map((ele, index) => (
-          <div key={index}>
+          <div key={index} style={{display:"grid",columnGap: 1, gridTemplateColumns: "auto auto auto auto auto", backgroundColor:"lightblue"}}>
             <div>{ele.name}</div>
-            <div>{ele.id}</div>
-            <div>{ele.isAvailable}</div>
-            <div>{ele.isActive}</div>
-            <div>{ele.lastTasks.name}</div>
+            <div>{ele.url}</div>
+            <div>{}</div>
+            <div>{}</div>
+            <div>{}</div>
           </div>
         ))}
-        </div>
       </div>
       </div>
       <div style={{marginTop: 20}}>
