@@ -1,5 +1,6 @@
 import express, {Express, Request, Response} from 'express';
 import {generateMFileWithRandomNumbers} from './generateRandomNumbers';
+import {sendTaskToSQS} from './sendTaskToSQS';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -27,7 +28,7 @@ app.get('/generateRandomFile',(req: Request,res: Response)=> {
         res.send('Error too many files to handle')
         return;
     }
-    let fileDirectory  = generateMFileWithRandomNumbers(numberOfFiles,10,1000);
+    let fileDirectory  = generateMFileWithRandomNumbers(numberOfFiles,100000,1000000);
     var filePaths = [];
     for (let index = 0; index < numberOfFiles; index++) {
         filePaths.push(`./${fileDirectory}/${index}.csv`);
@@ -43,30 +44,17 @@ app.post('/getFile',(req: Request,res:Response) => {
     res.sendFile(req.body.filePath as string,{root:__dirname+"/.."});
 })
 
-app.get('/getAllServerStatus',(req:Request, res:Response)=>{ 
-    let numberOfServers = 10;
-    var serverStatus = []
-    for (let index = 0; index < numberOfServers; index++) {
-        serverStatus.push({
-            name: '',
-            id: '',
-            currentTaks: null,
-            isAvailable: true,
-            lastTaskRunningTime: 0,
-            lastTaskFailed: false,
-            errorCode: 0,
-        })
-    }
+app.post('/sendTaskToSQS',async (req:Request,res:Response) => {
+    let messageID  = await sendTaskToSQS(req.body.filePath);
     res.json({
-        numberOfServers: numberOfServers,
-        serverStatus: serverStatus
+        status: true,
+        messageID: messageID
     })
-    })
-
-app.post('/setServerStatus',(req: Request, res: Response)=> {
-    // set Server Status to available or failed
 })
 
+app.post('/getServerInfo',(req:Request,res:Response) => {
+   
+})
 
 app.listen(port,() => {
     console.log(`Started server at port ${port}`);
