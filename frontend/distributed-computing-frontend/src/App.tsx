@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import ComputeNodeStatus from './ComputeNodeStatus';
+import TaskStatus from './TaskStatus';
 
 export interface RandomFiles {
   filePaths: string[],
@@ -56,6 +57,10 @@ function App() {
       }, body: JSON.stringify({ filePath }) }).then((data) =>
         data.json()).then((data) => console.log(data)
         )), [randomFiles])
+  const clearTask = useCallback(()=>{
+    fetch("http://localhost:8000/clearTasks", { method: "POST"});
+    setRandomFiles(null);
+  },[])
     return (
       <div className="App">
         <div>
@@ -103,6 +108,11 @@ function App() {
         </button>
         {/* </div>
       </div> */}
+      {randomFiles && <TaskStatus/>}
+
+      <button onClick={clearTask}>  
+        Clear Task
+      </button>
       </div>
     );
   }

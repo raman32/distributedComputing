@@ -1,14 +1,16 @@
 import fs from 'fs';
 
 function generateMFileWithRandomNumbers(M: number, min: number, max: number) {
+    return new Promise<string>((resolve, reject) => { 
     let currentTimeStamp = Date.now();
     createDirSync(`data/${currentTimeStamp.toString()}`);
     for (let index = 0; index < M; index++) {
         generateNRandomNumbersAndSaveToDisk(min + Math.floor(Math.random() * (max - min)), `${index}.csv`, `data/${currentTimeStamp.toString()}`, () => {
             console.log("Created Random Number File")
+            resolve(`data/${currentTimeStamp.toString()}`);
         });
     }
-    return `data/${currentTimeStamp.toString()}`;
+})
 }
 
 function generateNRandomNumbersAndSaveToDisk(N: number, fileName: string, directoryName: string, onFinish: () => void) {

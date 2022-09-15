@@ -3,7 +3,7 @@ import AWS from 'aws-sdk';
 
 function recieveResultsFromSQS() {
     return new Promise<string | undefined>((resolve, reject) => {
-
+        console.log("Getting Resutls")
         // Set the region 
         AWS.config.update({ region: 'us-east-1' });
         // Create an SQS service object

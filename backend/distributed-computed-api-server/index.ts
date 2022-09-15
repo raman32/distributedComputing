@@ -29,7 +29,7 @@ app.get('/',(req: Request,res: Response)=> {
 });
 
 // Generates M Random File 
-app.get('/generateRandomFile',(req: Request,res: Response)=> {
+app.get('/generateRandomFile',async (req: Request,res: Response)=> {
     var numberOfFiles = 10;
     if(req.query.numberOfFiles) {
     numberOfFiles = parseInt(req.query.numberOfFiles as string);
@@ -38,7 +38,7 @@ app.get('/generateRandomFile',(req: Request,res: Response)=> {
         res.send('Error too many files to handle')
         return;
     }
-    let fileDirectory  = generateMFileWithRandomNumbers(numberOfFiles,100000,1000000);
+    let fileDirectory  = await generateMFileWithRandomNumbers(numberOfFiles,1000000,10000000);
     var filePaths = [];
     for (let index = 0; index < numberOfFiles; index++) {
         filePaths.push(`./${fileDirectory}/${index}.csv`);
@@ -57,16 +57,12 @@ app.post('/getFile',(req: Request,res:Response) => {
 
 // Function to poll the result queue.
 // TODO: fix the setTimeout to only trigger at a fixed interval using a global variable.
-async function pollMessageForTheresult ({ filePath }: { filePath: string; }) {
+async function pollMessageForTheresult () {
     let result  = await recieveResultsFromSQS().then(data=>JSON.parse(data as string));
+    if(result)
     currentAggregatedResults.push(result);
-    if(filePath in currentAggregatedResults.map((ele)=>ele.currentTask)) {
-        return;
-    }else {
-        setTimeout(()=>pollMessageForTheresult({ filePath }),12000)
-        return;
-    }
 }
+setInterval(pollMessageForTheresult,10000);
 
 // Function to send an individual task to SQS
 app.post('/sendTaskToSQS',async (req:Request,res:Response) => {
@@ -76,7 +72,6 @@ app.post('/sendTaskToSQS',async (req:Request,res:Response) => {
         status: true,
         messageID: messageID
     })
-    pollMessageForTheresult({ filePath: req.body.filePath });
 })
 
 

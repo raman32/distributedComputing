@@ -7,7 +7,7 @@ import {sendResultToSQS} from './sendResultToSQS'
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT;
+const port = 1234;
 
 const cors = require('cors');
 app.use(cors({
@@ -15,16 +15,22 @@ app.use(cors({
 }));
 app.use(express.json()) 
 
+export type TaskStatus = "WAITING" | "RUNNING" | "COMPLETED" | "BLOCKED" | "ABORTED"
 
+
+// Change the status to support all the following status
 var currentTask = '';
 var isBusy = false;
 var lastTaskMessageID = '';
 
+
+// Create a handler to cancel the task if the user cancels it
+// Use a global variable to cancel the task in between the pipeline
 setInterval(() => !isBusy && recieveTaskFromSQS()
         .then((filePath) => {
             currentTask = filePath as string;
             isBusy =true
-            return downloadFileAndSaveToTemp("http://localhost:8000/getFile", filePath as string)})
+            return downloadFileAndSaveToTemp("http://host.docker.internal:8000/getFile", filePath as string)})
         .then(() => calculateAverage())
         .then(({average,currentCount}) => sendResultToSQS(JSON.stringify({average,currentCount,currentTask})))
         .then((message)=>{
@@ -33,6 +39,7 @@ setInterval(() => !isBusy && recieveTaskFromSQS()
             currentTask = '';
         })
 , 12000);
+
 
 app.post('/downloadfile', async (req: Request, res: Response) => {
     await downloadFileAndSaveToTemp(req.body.url, req.body.filePath);
