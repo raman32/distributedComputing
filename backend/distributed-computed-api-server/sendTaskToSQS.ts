@@ -12,8 +12,6 @@ var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 var params = {
    // Remove DelaySeconds parameter and value for FIFO queues
   DelaySeconds: 10,
-  MessageAttributes: {
-  },
   MessageBody: task,
   // MessageDeduplicationId: "TheWhistler",  // Required for FIFO queues
   // MessageGroupId: "Group1",  // Required for FIFO queues

@@ -20,11 +20,11 @@ var currentTask = '';
 var isBusy = false;
 var lastTaskMessageID = '';
 
-setInterval(() => isBusy && recieveTaskFromSQS()
+setInterval(() => !isBusy && recieveTaskFromSQS()
         .then((filePath) => {
             currentTask = filePath as string;
             isBusy =true
-            return downloadFileAndSaveToTemp("http://localhost:8000", filePath as string)})
+            return downloadFileAndSaveToTemp("http://localhost:8000/getFile", filePath as string)})
         .then(() => calculateAverage())
         .then(({average,currentCount}) => sendResultToSQS(JSON.stringify({average,currentCount,currentTask})))
         .then((message)=>{
@@ -32,7 +32,7 @@ setInterval(() => isBusy && recieveTaskFromSQS()
             isBusy =false;
             currentTask = '';
         })
-, 120000);
+, 12000);
 
 app.post('/downloadfile', async (req: Request, res: Response) => {
     await downloadFileAndSaveToTemp(req.body.url, req.body.filePath);
