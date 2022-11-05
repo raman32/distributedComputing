@@ -1,4 +1,4 @@
-# Distirbuted systems
+# Distirbuted computing using queues
 ## TO set up environment
 Clone the repository and run the following command
 ``` cd frontend\distributed-computing-frontend && yarn install```
